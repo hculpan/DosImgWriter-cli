@@ -47,7 +47,7 @@ class Configuration {
 class DosImgWriter {
     let consoleIO = ConsoleIO()
     
-    func staticMode() {
+    func staticMode() throws {
         let configuration = configureFromCommandLine(arguments: CommandLine.arguments)
         
         if (configuration.help || configuration.noArguments) {
@@ -59,10 +59,18 @@ class DosImgWriter {
             if (configuration.outputStats) { diskImage.outputDetails() }
             if (configuration.outputExtendedStats) { diskImage.outputExtendedDetails() }
             if (configuration.directoryListing != "") {
-                let entries = diskImage.getDirectory(name: configuration.directoryListing)
+                let entries = try diskImage.getDisplayableDirectory(name: configuration.directoryListing)
                 for entry in entries {
-                    consoleIO.writeMessage(entry.getFullNameTrimmed())
+                    if entry.isFile() {
+                        consoleIO.writeMessage(entry.getFullNameTrimmed() + "\t" + entry.getAttributesDescription() + "\t \(entry.fileSize)")
+                    } else {
+                        consoleIO.writeMessage(entry.getFullNameTrimmed() + "\t" + entry.getAttributesDescription())
+                    }
                 }
+            }
+            let clusters = try diskImage.getClustersForFile(name: "EMM386", ext: "EX_", path: "\\")
+            for cluster in clusters {
+                consoleIO.writeMessage("Cluster: \(cluster)")
             }
         }
     }

@@ -8,7 +8,10 @@
 
 import Foundation
 
-let dosImgWriter = DosImgWriter()
-dosImgWriter.staticMode()
-
+do {
+    let dosImgWriter = DosImgWriter()
+    try dosImgWriter.staticMode()
+} catch {
+    print(error)
+}
 
